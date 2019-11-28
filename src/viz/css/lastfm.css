@@ -1,0 +1,24 @@
+.label {
+    fill: black;
+    font: 10px sans-serif;
+    text-anchor: middle;
+}
+
+
+/*
+.labels {
+    font-size: smaller;
+}
+
+.lines {
+    stroke: black;
+    stroke-width: 1px;
+    fill: none;
+    opacity: 0.3;
+}
+*/
+
+.bubble {
+    opacity: 0.5;
+    fill: steelblue;
+}
