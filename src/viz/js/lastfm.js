@@ -51,29 +51,47 @@ function show() {
         ];
         let currentMonth;
 
+        let simulation = d3.forceSimulation()
+            .force("collide", d3.forceCollide().radius(d => 2 + radiusScale(d['data']['2011-03-31'])))
+            .force("charge", d3.forceManyBody().strength(30)) // attraction
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        simulation.nodes(data).on('tick', ticked)
+
+        function ticked() {
+          bubbles
+            .attr("transform", (d, i) => "translate(" +
+                d.x + "," +
+                d.y + ")"
+            );
+        }
+
         chart.on('click', onclick);
 
+        function radiusScale(x) {
+          return Math.sqrt(x) * 6 || 0;
+        }
+
         function onclick(){
-            currentMonth = months.shift();
+            currentMonth = months.shift() || 'end!';
 
             monthLabel.text(currentMonth);
 
-//            console.log(data[''])
-
             circles
                 .transition().duration(1000)
-                .attr("r", d => Math.sqrt(+d['data'][currentMonth]) * 3 || 0)
+                .attr("r", d => radiusScale(+d['data'][currentMonth]))
 
             circleLabels
                 .transition().duration(1000)
                 .style("font-size", d => (Math.floor(Math.sqrt(+d['data'][currentMonth]))) + 'px')
         }
+
+    });
+}
+
+
 //            const maxCount = 10; //d3.max(data_month, d => Math.sqrt(d.tag_count));
 //
 //            let bubbleRadius = d3.scaleLinear()
 //              .domain([0, maxCount])
 //              .range([0, maxRadius]);
-
-    });
-}
-
