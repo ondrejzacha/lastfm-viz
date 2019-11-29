@@ -3,8 +3,8 @@ function show() {
 
     // Config ---------------
     const margin = { top: 40, bottom: 40, right: 40, left: 40 },
-        width = 800 - margin.left - margin.right,
-        height = 600 - margin.top - margin.bottom;
+        width = window.innerWidth - margin.left - margin.right,
+        height = window.innerHeight - margin.top - margin.bottom;
 
     const maxRadius = 200;
 
@@ -50,16 +50,38 @@ function show() {
             '2019-12-31'
         ];
         let currentMonth;
+        let radCount = 0;
+
+        function radiusScale(x) {
+          return Math.sqrt(x) * 6 || 0;
+        }
+
+        function currentRadiusFun(d) {
+            let res = radiusScale(d['data'][currentMonth]) || 0.001;
+
+            if (d['tag'] == 'indie') {
+                console.trace()
+                console.log('-------------------------------------------------------------------------')
+                console.log('month, count, d', currentMonth, d);
+                console.log(d['data'][currentMonth]);
+                console.log('result', res);
+            }
+            return res;
+        };
+
+        let forceCollide = d3.forceCollide().radius(currentRadiusFun).iterations(5).strength(0.7)
+        let forceAttraction = d3.forceManyBody().strength(80) // attraction
 
         let simulation = d3.forceSimulation()
-            .force("collide", d3.forceCollide().radius(d => 2 + radiusScale(d['data']['2011-03-31'])))
-            .force("charge", d3.forceManyBody().strength(30)) // attraction
+            .force("collide", forceCollide)
+            .force("charge", forceAttraction)
             .force("center", d3.forceCenter(width / 2, height / 2));
 
         simulation.nodes(data).on('tick', ticked)
 
         function ticked() {
           bubbles
+            .transition().duration(500)
             .attr("transform", (d, i) => "translate(" +
                 d.x + "," +
                 d.y + ")"
@@ -68,18 +90,19 @@ function show() {
 
         chart.on('click', onclick);
 
-        function radiusScale(x) {
-          return Math.sqrt(x) * 6 || 0;
-        }
-
         function onclick(){
+
             currentMonth = months.shift() || 'end!';
+
+            forceCollide.initialize(simulation.nodes());
+            forceAttraction.initialize(simulation.nodes());
+            simulation.restart();
 
             monthLabel.text(currentMonth);
 
             circles
                 .transition().duration(1000)
-                .attr("r", d => radiusScale(+d['data'][currentMonth]))
+                .attr("r", currentRadiusFun)
 
             circleLabels
                 .transition().duration(1000)
