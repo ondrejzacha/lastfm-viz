@@ -15,8 +15,8 @@ function show() {
 
     let monthLabel = chart.append('text')
         .attr('class', 'month')
-        .attr('x', margin.left)
-        .attr('y', margin.top);
+        .attr('x', width / 2)
+        .attr('y', height + margin.top);
     // End initialization ---------------
 
 
@@ -55,10 +55,15 @@ function show() {
 
         function onclick(){
             currentMonth = months.shift();
+
             monthLabel.text(currentMonth);
+
+//            console.log(data[''])
+
             circles
                 .transition().duration(1000)
-                .attr("r", d => Math.sqrt(+d['data'][currentMonth]) * 3)
+                .attr("r", d => Math.sqrt(+d['data'][currentMonth]) * 3 || 0)
+
             circleLabels
                 .transition().duration(1000)
                 .style("font-size", d => (Math.floor(Math.sqrt(+d['data'][currentMonth]))) + 'px')
